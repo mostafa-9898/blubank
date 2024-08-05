@@ -1,36 +1,39 @@
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 // Models
-import { IJsonData } from "../interfaces/jsonData";
 import { IStorageData } from "../interfaces/storageData";
 
+// Context
+import { UserLoamInfoContext } from "../context/userLoamInfoContext";
+
 interface IProps {
-    userLoamInfo: IJsonData | undefined
     nextStep: () => void
 }
 
-function LoanInfo({ nextStep, userLoamInfo }: IProps) {
+function LoanInfo({ nextStep }: IProps) {
 
-    const [loanData, setLoanData] = useState(userLoamInfo?.repaymentType[0].value)
+    const loamInfo = useContext(UserLoamInfoContext);
+
+    const [loanData, setLoanData] = useState(loamInfo?.userLoamInfo?.repaymentType[0].value)
 
     const payment = useMemo(() => {
-        if (userLoamInfo?.interestRate && loanData) {
+        if (loamInfo?.userLoamInfo?.interestRate && loanData) {
             return (
-                <h5>{((userLoamInfo.amount + (userLoamInfo?.amount * (userLoamInfo.interestRate / 100))) / loanData).toLocaleString()}</h5>
+                <h5>{((loamInfo?.userLoamInfo.amount + (loamInfo?.userLoamInfo?.amount * (loamInfo?.userLoamInfo.interestRate / 100))) / loanData).toLocaleString()}</h5>
             )
         }
 
-        if (userLoamInfo?.percentageRate && loanData) {
+        if (loamInfo?.userLoamInfo?.percentageRate && loanData) {
             return (
-                <h5>{((userLoamInfo.amount + (userLoamInfo?.amount * (userLoamInfo.percentageRate / 100))) / loanData).toLocaleString()}</h5>
+                <h5>{((loamInfo?.userLoamInfo.amount + (loamInfo?.userLoamInfo?.amount * (loamInfo?.userLoamInfo.percentageRate / 100))) / loanData).toLocaleString()}</h5>
             )
         }
     }, [loanData])
 
     const penalty = useMemo(() => {
-        if (userLoamInfo) {
+        if (loamInfo?.userLoamInfo) {
             return (
-                <h5>{(userLoamInfo?.amount * userLoamInfo?.penaltyRate).toLocaleString()}</h5>
+                <h5>{(loamInfo?.userLoamInfo?.amount * loamInfo?.userLoamInfo?.penaltyRate).toLocaleString()}</h5>
             )
         }
     }, [])
@@ -38,36 +41,36 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
     const submitLoan = () => {
         let storage = sessionStorage.getItem("userLoans")
 
-        if (!storage && userLoamInfo) {
+        if (!storage && loamInfo?.userLoamInfo) {
             let saveCurrentData = []
-            let newRepaymentType = userLoamInfo.repaymentType.find(item => item.value === loanData)
+            let newRepaymentType = loamInfo?.userLoamInfo.repaymentType.find(item => item.value === loanData)
             saveCurrentData.push({
-                amount: userLoamInfo.amount,
-                id: userLoamInfo.id,
-                interestRate: userLoamInfo.interestRate,
-                persentageRate: userLoamInfo.percentageRate,
-                name: userLoamInfo.name,
-                penaltyRate: userLoamInfo.penaltyRate,
+                amount: loamInfo?.userLoamInfo.amount,
+                id: loamInfo?.userLoamInfo.id,
+                interestRate: loamInfo?.userLoamInfo.interestRate,
+                persentageRate: loamInfo?.userLoamInfo.percentageRate,
+                name: loamInfo?.userLoamInfo.name,
+                penaltyRate: loamInfo?.userLoamInfo.penaltyRate,
                 repaymentType: newRepaymentType
             })
             sessionStorage.setItem("userLoans", JSON.stringify(saveCurrentData))
             nextStep()
         }
 
-        if (storage && userLoamInfo) {
+        if (storage && loamInfo?.userLoamInfo) {
             let parsedStorage = JSON.parse(storage)
-            let newRepaymentType = userLoamInfo.repaymentType.find(item => item.value === loanData)
+            let newRepaymentType = loamInfo?.userLoamInfo.repaymentType.find(item => item.value === loanData)
             let isExist = parsedStorage.find((item: IStorageData) => item.repaymentType.value === loanData)
             if (isExist) {
                 alert("این مورد قبلا ثبت شده است.")
             } else {
                 parsedStorage.push({
-                    amount: userLoamInfo.amount,
-                    id: userLoamInfo.id,
-                    interestRate: userLoamInfo.interestRate,
-                    persentageRate: userLoamInfo.percentageRate,
-                    name: userLoamInfo.name,
-                    penaltyRate: userLoamInfo.penaltyRate,
+                    amount: loamInfo?.userLoamInfo.amount,
+                    id: loamInfo?.userLoamInfo.id,
+                    interestRate: loamInfo?.userLoamInfo.interestRate,
+                    persentageRate: loamInfo?.userLoamInfo.percentageRate,
+                    name: loamInfo?.userLoamInfo.name,
+                    penaltyRate: loamInfo?.userLoamInfo.penaltyRate,
                     repaymentType: newRepaymentType
                 })
                 sessionStorage.setItem("userLoans", JSON.stringify(parsedStorage))
@@ -85,7 +88,7 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
                     onChange={(e) => { if (loanData) setLoanData(Number(e.target.value)) }}
                 >
                     {
-                        userLoamInfo?.repaymentType.map(item => (
+                        loamInfo?.userLoamInfo?.repaymentType.map(item => (
                             <option value={item.value}>{item.name}</option>
                         ))
                     }
@@ -95,7 +98,7 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
             <div className="w-full flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                     <h4>مبلغ:</h4>
-                    <h5>{userLoamInfo?.amount.toLocaleString()}</h5>
+                    <h5>{loamInfo?.userLoamInfo?.amount.toLocaleString()}</h5>
                 </div>
                 <div className="flex items-center justify-between">
                     <h4>مدت زمان بازپرداخت:</h4>
@@ -118,10 +121,10 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
                 <div className="flex items-center justify-between">
                     <h4>درصد سود سالیانه:</h4>
                     {
-                        userLoamInfo && (
+                        loamInfo?.userLoamInfo && (
                             <h5>
-                                {userLoamInfo.percentageRate && userLoamInfo.percentageRate}
-                                {userLoamInfo.interestRate && userLoamInfo.interestRate}
+                                {loamInfo?.userLoamInfo.percentageRate && loamInfo?.userLoamInfo.percentageRate}
+                                {loamInfo?.userLoamInfo.interestRate && loamInfo?.userLoamInfo.interestRate}
                                 {" "}درصد
                             </h5>
                         )

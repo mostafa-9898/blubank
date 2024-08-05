@@ -1,7 +1,9 @@
 // Formik and Yup
-import { isShebaValid } from "@persian-tools/persian-tools";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from 'yup';
+
+// persian tools
+import { isShebaValid } from "@persian-tools/persian-tools";
 
 interface IProps {
     nextStep: () => void

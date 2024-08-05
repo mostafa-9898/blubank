@@ -1,17 +1,20 @@
+import { useContext } from 'react';
+
 // Data
 import loamsData from '../../data.json'
 
-// Models
-import { IJsonData } from '../interfaces/jsonData';
+// Context
+import { UserLoamInfoContext } from '../context/userLoamInfoContext';
 
 
 interface IProps {
-    setUserLoamInfo: React.Dispatch<React.SetStateAction<IJsonData | undefined>>
     nextStep: () => void
 }
 
+function LoanCards({ nextStep }: IProps) {
 
-function LoanCards({ setUserLoamInfo, nextStep }: IProps) {
+    const loamInfo = useContext(UserLoamInfoContext);
+
     return (
         <section className='flex items-center justify-center gap-10 flex-wrap'>
             {
@@ -19,7 +22,7 @@ function LoanCards({ setUserLoamInfo, nextStep }: IProps) {
                     <div className='border border-gray-500 hover:border-blue-500
                      cursor-pointer rounded-md p-6 min-w-[30%] flex flex-col gap-4'
                         onClick={() => {
-                            setUserLoamInfo(item)
+                            loamInfo && loamInfo.setUserLoamInfo(item)
                             nextStep()
                         }}
                     >
