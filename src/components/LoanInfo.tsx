@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 // Models
 import { IJsonData } from "../interfaces/jsonData";
@@ -13,8 +13,26 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
 
     const [loanData, setLoanData] = useState(userLoamInfo?.repaymentType[0].value)
 
-    useEffect(() => {
+    const payment = useMemo(() => {
+        if (userLoamInfo?.interestRate && loanData) {
+            return (
+                <h5>{((userLoamInfo.amount + (userLoamInfo?.amount * (userLoamInfo.interestRate / 100))) / loanData).toLocaleString()}</h5>
+            )
+        }
 
+        if (userLoamInfo?.percentageRate && loanData) {
+            return (
+                <h5>{((userLoamInfo.amount + (userLoamInfo?.amount * (userLoamInfo.percentageRate / 100))) / loanData).toLocaleString()}</h5>
+            )
+        }
+    }, [loanData])
+
+    const penalty = useMemo(() => {
+        if (userLoamInfo) {
+            return (
+                <h5>{(userLoamInfo?.amount * userLoamInfo?.penaltyRate).toLocaleString()}</h5>
+            )
+        }
     }, [])
 
     const submitLoan = () => {
@@ -95,32 +113,15 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
                 </div>
                 <div className="flex items-center justify-between">
                     <h4>مبلغ قست ماهیانه:</h4>
-                    {
-                        userLoamInfo && loanData && (
-                            <h5>
-                                {
-                                    userLoamInfo.interestRate ? (
-                                        ((userLoamInfo.amount + (userLoamInfo?.amount * (userLoamInfo.interestRate / 100))) / loanData).toLocaleString()
-                                    ) : userLoamInfo.percentageRate ? (
-                                        ((userLoamInfo.amount + (userLoamInfo?.amount * (userLoamInfo.percentageRate / 100))) / loanData).toLocaleString()
-                                    ) : "-"
-                                }
-                            </h5>
-                        )
-                    }
+                    {payment}
                 </div>
                 <div className="flex items-center justify-between">
                     <h4>درصد سود سالیانه:</h4>
                     {
                         userLoamInfo && (
                             <h5>
-                                {
-                                    userLoamInfo.interestRate ? (
-                                        (userLoamInfo.interestRate)
-                                    ) : userLoamInfo.percentageRate ? (
-                                        (userLoamInfo.percentageRate)
-                                    ) : "-"
-                                }
+                                {userLoamInfo.percentageRate && userLoamInfo.percentageRate}
+                                {userLoamInfo.interestRate && userLoamInfo.interestRate}
                                 {" "}درصد
                             </h5>
                         )
@@ -128,11 +129,7 @@ function LoanInfo({ nextStep, userLoamInfo }: IProps) {
                 </div>
                 <div className="flex items-center justify-between">
                     <h4>مبلغ جریمه دیرکرد:</h4>
-                    <h5>
-                        {
-                            userLoamInfo && (userLoamInfo?.amount * userLoamInfo?.penaltyRate).toLocaleString()
-                        }
-                    </h5>
+                    {penalty}
                 </div>
             </div>
 

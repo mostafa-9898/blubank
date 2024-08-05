@@ -1,4 +1,5 @@
 // Formik and Yup
+import { phoneNumberValidator, verifyIranianNationalId } from "@persian-tools/persian-tools";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from 'yup';
 
@@ -11,9 +12,17 @@ function UserInfo({ nextStep }: IProps) {
     const formSchema = Yup.object().shape({
         name: Yup.string().required("نام خود را وارد کنید"),
         family: Yup.string().required("نام خانوادگی خود را وارد کنید"),
-        nationalId: Yup.number().required("کد ملی خود را وارد کنید"),
-        birthDate: Yup.number().required("تاریخ تولد خود را وارد کنید"),
-        phone: Yup.number().required("شماره تماس خود را وارد کنید"),
+        nationalId: Yup.string().required("کد ملی خود را وارد کنید").test(
+            'IsNationalId',
+            "کد ملی نامعتبر است",
+            (value) => verifyIranianNationalId(value),
+        ),
+        birthDate: Yup.string().required("تاریخ تولد خود را وارد کنید"),
+        phone: Yup.string().required("شماره تماس خود را وارد کنید").test(
+            'Isphone',
+            "شماره تماس نامعتبر است",
+            (value) => phoneNumberValidator(value),
+        ),
     });
 
     return (
@@ -28,7 +37,6 @@ function UserInfo({ nextStep }: IProps) {
                     phone: "",
                 }}
                 onSubmit={(values, actions) => {
-                    // console.log(values);
                     nextStep()
                 }}
                 validationSchema={formSchema}
@@ -67,10 +75,6 @@ function UserInfo({ nextStep }: IProps) {
                     </Form>
                 )}
             </Formik>
-
-
-
-
         </div>
     );
 }

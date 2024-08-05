@@ -21,7 +21,10 @@ const steps = [
 function Register() {
 
     const [currentStep, setCurrentStep] = useState(0)
+
+
     const [userLoamInfo, setUserLoamInfo] = useState<IJsonData>()
+    // context konm
 
     const nextStep = () => {
         setCurrentStep(prev => {
@@ -39,15 +42,11 @@ function Register() {
                     <h4 className='text-lg'>{steps.length} / {currentStep + 1}</h4>
                     <h4 className='text-xl'>{steps.map((item, index) => index === currentStep && item.title)}</h4>
                 </nav>
-
-                {
-                    currentStep === 0 ? <LoanCards setUserLoamInfo={setUserLoamInfo} nextStep={nextStep} />
-                        : currentStep === 1 ? <UserInfo nextStep={nextStep} />
-                            : currentStep === 2 ? <UserBankInfo nextStep={nextStep} />
-                                : currentStep === 3 ? <LoanInfo userLoamInfo={userLoamInfo} nextStep={nextStep} />
-                                    : currentStep === 4 ? <FinishLoanSteps />
-                                        : null
-                }
+                {currentStep === 0 && <LoanCards setUserLoamInfo={setUserLoamInfo} nextStep={nextStep} />}
+                {currentStep === 1 && <UserInfo nextStep={nextStep} />}
+                {currentStep === 2 && <UserBankInfo nextStep={nextStep} />}
+                {currentStep === 3 && <LoanInfo userLoamInfo={userLoamInfo} nextStep={nextStep} />}
+                {currentStep === 4 && <FinishLoanSteps />}
             </div>
 
         </main>
